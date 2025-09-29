@@ -1,0 +1,32 @@
+﻿Sleepover Game Ideas (3 Players) - Next.js + Tailwind
+
+Quick Wins (build tonight)
+- Secret Word (Impostor): Two players see the secret word, one sees a question mark. Everyone gives one-word clues, then accuses the impostor. Build: shuffle a word list JSON, assign roles with Math.random, include a 60 second timer and a score tracker in localStorage.
+- Drawing Telephone: Player A draws, player B captions, player C redraws the caption. Reveal the chain at the end. Build: HTML canvas + simple color picker, step-based flow with useReducer, store the round in localStorage for replay.
+- Emoji Pictionary: The app shows a random emoji prompt; one player draws, others guess aloud. Swap roles each round. Build: emoji prompt array, canvas for drawing, per-round timer with audible alert.
+- Collaborative Story Spinner: Each player adds one sentence based on a random prompt card. After three turns, read the story. Build: prompts JSON, typewriter animation, allow editing before locking the story.
+
+Shared Device Mini-Games
+- Rapid Dare Wheel: Spin to pick goofy dares or questions; allow one skip per player. Build: CSS rotate animation, dare list stored in JSON, cooldown indicator before the next spin.
+- Beat the Clock Trivia: Show a rapid-fire question, start a countdown, reveal answer once time is up. Build: question bank JSON, progress bar animation, add difficulty toggles.
+
+Multi-Device / Phone Friendly
+- Quiz Buzzer Host: One host screen displays questions, players join with room code and tap to buzz. Fastest timestamp locks the question. Build: Next.js API route with in-memory room state or simple WebSocket server, useSWR polling fallback, views for /host and /join/[room].
+- Heads Up Clone: One phone is held to the forehead; tilting up or down marks pass or win while others shout clues. Build: use DeviceOrientationEvent for tilt detection, fallback buttons, word packs by theme.
+- Hotseat Polls: Host asks "Most likely to..." prompts; everyone votes secretly from their phone, reveal with animated bars. Build: session code, POST votes to an API route, filter duplicate votes.
+
+IRL Augmented
+- Photo Scavenger Sprint: Timed list (something red, triangle, reflection). Players snap proof and upload; scoreboard shows timestamps. Build: getUserMedia for quick capture, checklist UI, optional offline mode storing data locally.
+- Soundtrack Switcheroo: Each round one player is DJ; swap between moods while others act out the matching scene. Build: import small audio clips, provide play and pause buttons, random mood generator.
+- Reaction Face-Off: Flash a prompt ("surprised cat", "slow-motion yawn") and take rapid selfies; judge the funniest result. Build: timed countdown, burst photo capture, gallery grid.
+
+Stretch Concepts
+- Wavelength Lite: Hidden target on a scale (spicy to mild). Clue giver hints, others place the slider, reveal score delta. Build: linear gradient slider, dynamic scoring, data persistence for streaks.
+- Mystery Mansion Map: Collaborative escape-room board; reveal rooms and mini puzzles as you advance. Build: grid-based map component, per-room modal with puzzles, local state for inventory.
+
+Build Kit Notes
+- Next.js layout: `/` for rules and lobby, `/play` for the main flow, add `/host` and `/join/[room]` if phones join separately.
+- State handling: useReducer for multi-step rounds, sync to localStorage on each state change, reset helpers for a new game.
+- Styling: Tailwind utility classes; set up base prose and card components to keep layout tidy, add custom CSS for canvas and buzzer interactions.
+- Assets: Keep data (word lists, dares, prompts) in `/data/*.json`, add a helper to fetch and shuffle entries.
+- Polish: Add a confetti-on-win component, full-screen toggle for party mode, optional dark theme for late-night play.

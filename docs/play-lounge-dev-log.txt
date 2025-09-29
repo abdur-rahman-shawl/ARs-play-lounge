@@ -1,0 +1,85 @@
+[2025-09-29 10:35] Project Kickoff
+Purpose: Build a single-device Next.js party hub inspired by PlayStation Home, delivering multiple couch-friendly games. First playable module: Truth or Dare with spinner and prompt management.
+Constraints: Runs on one PC offline; no multi-device sync yet. Target stack Next.js 14 App Router, Tailwind, TypeScript. Deployment not yet considered.
+Initial Brainstorming:
+- Central hub with neon/space aesthetic, tiles for each game.
+- Games share player roster and localStorage persistence.
+- Truth or Dare MVP requires player queue, truth/dare wheel, prompt randomizer, completion tracking.
+- Future games can plug into registry (e.g., Drawing Telephone, Rapid Dare Wheel variant, Wavelength Lite).
+Planning Notes:
+- Scaffold new Next.js app under `play-lounge/` (separate from repo root).
+- Create reusable UI components (glass panels, neon headings, buttons).
+- Organize prompts in `data/truth-or-dare.ts` for reuse.
+- Implement hooks for player management and prompt rotation.
+- Document all architectural decisions and evolution in this log.
+Next Actions:
+1. Manual scaffold (or `create-next-app`) within `play-lounge/` directory.
+2. Configure Tailwind, TypeScript, ESLint.
+3. Implement hub page shell + Truth or Dare route skeleton.
+
+[2025-09-29 10:50] Architecture Outline Snapshot
+Play Lounge Architecture Plan
+
+Goal
+- Build a single-device "PlayStation Home" inspired hub in Next.js 14 with Tailwind.
+- Support multiple party games, starting with Truth or Dare.
+
+Tech Stack
+- Next.js 14+ with App Router and TypeScript.
+- React 18, Client Components for interactive game modules.
+- Tailwind CSS 3.4 for styling; CSS variables for neon/PS5 aesthetic.
+- Local state + localStorage hydration for player lists/per-game settings.
+
+Structure
+- Root layout provides global background, radial gradient, and top nav (logo + session controls placeholder).
+- Home hub at `app/page.tsx` renders "carousel" like UI:
+  * Hero area with featured game
+  * Horizontal scroll of GameTiles; arrow keys / pointer for selection (initially click only, but accessible markup for future keyboard support).
+  * Uses `lib/games.ts` to pull metadata (slug, name, tagline, status, accent color).
+- Dynamic game routes under `app/games/[slug]/page.tsx`.
+- Reusable UI primitives in `components/ui` (GlassCard, Button, NeonHeading, SpinnerWheel).
+- Each game has its own component folder under `components/games/<slug>` plus data in `data/<slug>/`.
+
+Truth or Dare Module
+- Single-page experience with three panels:
+  * Player Lobby: add/remove names, toggle auto-rotate or manual order.
+  * Spinner Stage: Play button triggers wheel animation (Truth vs Dare) + selects next player.
+  * Prompt Reveal: shows the prompt with actions (new prompt, mark as completed, swap type).
+- Data: `data/truth-or-dare.ts` exports `truthPrompts`, `darePrompts`, curated for PG-13 fun.
+- State Machine (client component):
+  * `idle` -> `spinning` -> `revealed`.
+  * After reveal, allow `Next Round` resets to `idle` selecting next player.
+- Visuals: radial gradient background, animated wheel (CSS transform), confetti optional (future).
+
+Extensibility
+- Games registry typed with shared interface so adding new games just requires metadata + route component.
+- Hook `usePartyPlayers` manages names and stores in localStorage.
+- Utility `pickRandom<T>(array, historySet?)` ensures recent prompts not repeated.
+
+Roadmap After Truth or Dare
+- Add new games by creating `components/games/<new>` and hooking into `games.ts`.
+- Add achievements overlay, session persistence, audio cues.
+
+Dev Notes
+- Provide scripts in package.json, ESLint + Tailwind config ready for `npm install`.
+- README to guide running `npm install` then `npm run dev`.
+- Keep assets ASCII-friendly; no external images initially.
+
+[2025-09-29 11:05] Scaffold Progress
+- Created dedicated Next.js app directory \play-lounge/\ with manual scaffold mirroring create-next-app (package.json, tsconfig, next.config.ts, Tailwind + PostCSS setup, .gitignore).
+- Implemented App Router skeleton: global layout with Lexend font, radial neon background, hub home page with featured game tiles, dynamic game route handler.
+- Added reusable UI primitives (GlassCard, Button, HubHeader, GameTile) with Tailwind neon styling.
+- Built Truth or Dare module (prompt data, player roster hook, animated spinner, prompt reveal actions).
+- Seeds include future game placeholders in games registry for easy expansion.
+- Pending: testing interaction states in browser, hooking up confetti/audio polish, populating additional games after truth-or-dare sign-off.
+
+
+
+
+[2025-09-29 11:20] Config fix -> Converted next.config.ts to next.config.mjs because Next.js CLI only accepts JS/MJS configs.
+[2025-09-29 11:24] TS config fix -> Corrected escaped path key in tsconfig.json ("@/*") so Next.js TypeScript verification can parse JSON.
+[2025-09-29 11:32] Encoding fix -> Rewrote package.json and tsconfig.json with UTF-8 encoding so Next.js can parse configuration files.
+[2025-09-29 11:38] Encoding fix -> Rewrote package.json and tsconfig.json without UTF-8 BOM so Next.js webpack JSON parsing succeeds.
+[2025-09-29 11:55] Navigation -> Added in-game "Back to Lounge" link and tagline banner on game pages so players can return to the hub without browser controls.
+[2025-09-29 12:05] Repo tidy -> Moved docs/ and sleepover-game-ideas.txt inside play-lounge per new workspace structure.
+[2025-09-29 12:12] Repo docs -> Added project README and standardized .gitignore in play-lounge after git init.

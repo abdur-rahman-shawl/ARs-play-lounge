@@ -1,0 +1,49 @@
+Play Lounge Architecture Plan
+
+Goal
+- Build a single-device "PlayStation Home" inspired hub in Next.js 14 with Tailwind.
+- Support multiple party games, starting with Truth or Dare.
+
+Tech Stack
+- Next.js 14+ with App Router and TypeScript.
+- React 18, Client Components for interactive game modules.
+- Tailwind CSS 3.4 for styling; CSS variables for neon/PS5 aesthetic.
+- Local state + localStorage hydration for player lists/per-game settings.
+
+Structure
+- Root layout provides global background, radial gradient, and top nav (logo + session controls placeholder).
+- Home hub at `app/page.tsx` renders "carousel" like UI:
+  * Hero area with featured game
+  * Horizontal scroll of GameTiles; arrow keys / pointer for selection (initially click only, but accessible markup for future keyboard support).
+  * Uses `lib/games.ts` to pull metadata (slug, name, tagline, status, accent color).
+- Dynamic game routes under `app/games/[slug]/page.tsx`.
+- Reusable UI primitives in `components/ui` (GlassCard, Button, NeonHeading, SpinnerWheel).
+- Each game has its own component folder under `components/games/<slug>` plus data in `data/<slug>/`.
+
+Truth or Dare Module
+- Single-page experience with three panels:
+  * Player Lobby: add/remove names, toggle auto-rotate or manual order.
+  * Spinner Stage: Play button triggers wheel animation (Truth vs Dare) + selects next player.
+  * Prompt Reveal: shows the prompt with actions (new prompt, mark as completed, swap type).
+- Data: `data/truth-or-dare.ts` exports `truthPrompts`, `darePrompts`, curated for PG-13 fun.
+- State Machine (client component):
+  * `idle` -> `spinning` -> `revealed`.
+  * After reveal, allow `Next Round` resets to `idle` selecting next player.
+- Visuals: radial gradient background, animated wheel (CSS transform), confetti optional (future).
+
+Extensibility
+- Games registry typed with shared interface so adding new games just requires metadata + route component.
+- Hook `usePartyPlayers` manages names and stores in localStorage.
+- Utility `pickRandom<T>(array, historySet?)` ensures recent prompts not repeated.
+
+Roadmap After Truth or Dare
+- Add new games by creating `components/games/<new>` and hooking into `games.ts`.
+- Add achievements overlay, session persistence, audio cues.
+
+Dev Notes
+- Provide scripts in package.json, ESLint + Tailwind config ready for `npm install`.
+- README to guide running `npm install` then `npm run dev`.
+- Keep assets ASCII-friendly; no external images initially.
+
+
+

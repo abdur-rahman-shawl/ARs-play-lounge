@@ -83,3 +83,5 @@ Dev Notes
 [2025-09-29 11:55] Navigation -> Added in-game "Back to Lounge" link and tagline banner on game pages so players can return to the hub without browser controls.
 [2025-09-29 12:05] Repo tidy -> Moved docs/ and sleepover-game-ideas.txt inside play-lounge per new workspace structure.
 [2025-09-29 12:12] Repo docs -> Added project README and standardized .gitignore in play-lounge after git init.
+[2025-09-29 12:25] UI polish -> Marked wheel segments as relative containers so Truth/Dare labels no longer overlap.
+[2025-09-29 12:40] Bugfix -> Stabilized Truth or Dare spin cycle (timeout cleanup, functional rotation updates, history refs) and updated remove button icon.

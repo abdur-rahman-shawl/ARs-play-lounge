@@ -1,6 +1,6 @@
 'use client';
 
-import { FormEvent, useMemo, useState } from 'react';
+import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import clsx from 'clsx';
 import { GlassCard } from '@/components/ui/glass-card';
 import { Button } from '@/components/ui/button';
@@ -12,6 +12,7 @@ type Phase = 'idle' | 'spinning' | 'revealed';
 type PlayMode = 'truth' | 'dare';
 
 const spinDuration = 2000;
+const HISTORY_TRIM = 10;
 
 const pickRandom = (list: string[], history: string[]) => {
   if (list.length === 0) return '';
@@ -20,6 +21,11 @@ const pickRandom = (list: string[], history: string[]) => {
   const pool = available.length ? available : list;
   const index = Math.floor(Math.random() * pool.length);
   return pool[index];
+};
+
+const appendHistory = (history: string[], prompt: string) => {
+  const next = history.concat(prompt);
+  return next.length > HISTORY_TRIM ? next.slice(next.length - HISTORY_TRIM) : next;
 };
 
 export function TruthOrDareScreen() {
@@ -33,14 +39,36 @@ export function TruthOrDareScreen() {
   const [dareHistory, setDareHistory] = useState<string[]>([]);
   const [rotation, setRotation] = useState(0);
 
+  const truthHistoryRef = useRef<string[]>([]);
+  const dareHistoryRef = useRef<string[]>([]);
+  const spinTimeoutRef = useRef<number | null>(null);
+
   const activePlayer = players.length ? players[activeIndex % players.length] : null;
 
-  const playerInitials = useMemo(() =>
-    players.map((player) => ({
-      id: player.id,
-      label: player.name.slice(0, 2).toUpperCase(),
-    })),
-  [players]);
+  const playerInitials = useMemo(
+    () =>
+      players.map((player) => ({
+        id: player.id,
+        label: player.name.slice(0, 2).toUpperCase(),
+      })),
+    [players],
+  );
+
+  useEffect(() => {
+    truthHistoryRef.current = truthHistory;
+  }, [truthHistory]);
+
+  useEffect(() => {
+    dareHistoryRef.current = dareHistory;
+  }, [dareHistory]);
+
+  useEffect(() => {
+    return () => {
+      if (spinTimeoutRef.current) {
+        window.clearTimeout(spinTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
@@ -51,29 +79,45 @@ export function TruthOrDareScreen() {
     }
   };
 
+  const commitPrompt = (nextMode: PlayMode, prompt: string) => {
+    if (!prompt) return;
+
+    if (nextMode === 'truth') {
+      const updated = appendHistory(truthHistoryRef.current, prompt);
+      truthHistoryRef.current = updated;
+      setTruthHistory(updated);
+    } else {
+      const updated = appendHistory(dareHistoryRef.current, prompt);
+      dareHistoryRef.current = updated;
+      setDareHistory(updated);
+    }
+  };
+
   const beginSpin = () => {
     if (!players.length || phase === 'spinning') return;
 
     const nextMode: PlayMode = Math.random() > 0.5 ? 'truth' : 'dare';
     setMode(nextMode);
     setPhase('spinning');
+    setCurrentPrompt('');
 
-    const extraTurns = 360 * 3; // spin three times for flair
-    const offset = nextMode === 'truth' ? 45 : 225; // align pointer with segment
-    const targetRotation = rotation + extraTurns + offset + Math.floor(Math.random() * 45);
-    setRotation(targetRotation);
+    const offset = nextMode === 'truth' ? 45 : 225;
+    const jitter = Math.floor(Math.random() * 50) - 25; // subtle variance
 
-    window.setTimeout(() => {
+    setRotation((prev) => prev + 360 * 3 + offset + jitter);
+
+    if (spinTimeoutRef.current) {
+      window.clearTimeout(spinTimeoutRef.current);
+    }
+
+    spinTimeoutRef.current = window.setTimeout(() => {
       const source = nextMode === 'truth' ? truthPrompts : darePrompts;
-      const history = nextMode === 'truth' ? truthHistory : dareHistory;
+      const history = nextMode === 'truth' ? truthHistoryRef.current : dareHistoryRef.current;
       const picked = pickRandom(source, history);
+      commitPrompt(nextMode, picked);
       setCurrentPrompt(picked);
-      if (nextMode === 'truth') {
-        setTruthHistory((prev) => (prev.length > 18 ? prev.slice(10) : prev).concat(picked));
-      } else {
-        setDareHistory((prev) => (prev.length > 18 ? prev.slice(10) : prev).concat(picked));
-      }
       setPhase('revealed');
+      spinTimeoutRef.current = null;
     }, spinDuration);
   };
 
@@ -85,15 +129,13 @@ export function TruthOrDareScreen() {
   };
 
   const newPromptSameMode = () => {
+    if (phase !== 'revealed') return;
+
     const source = mode === 'truth' ? truthPrompts : darePrompts;
-    const history = mode === 'truth' ? truthHistory : dareHistory;
+    const history = mode === 'truth' ? truthHistoryRef.current : dareHistoryRef.current;
     const picked = pickRandom(source, history);
+    commitPrompt(mode, picked);
     setCurrentPrompt(picked);
-    if (mode === 'truth') {
-      setTruthHistory((prev) => (prev.length > 18 ? prev.slice(10) : prev).concat(picked));
-    } else {
-      setDareHistory((prev) => (prev.length > 18 ? prev.slice(10) : prev).concat(picked));
-    }
   };
 
   return (
@@ -129,7 +171,7 @@ export function TruthOrDareScreen() {
                     className="rounded-full border border-white/20 px-2 py-0.5 text-xs text-slate-400 hover:border-red-400 hover:text-red-300"
                     aria-label={`Remove ${player.name}`}
                   >
-                    ?
+                    x
                   </button>
                 </span>
               ))}
@@ -151,13 +193,19 @@ export function TruthOrDareScreen() {
             <div className="absolute -top-6 h-10 w-10 rounded-full bg-accent-neon/80 shadow-glow" />
             <div
               className="neon-ring relative flex h-full w-full items-center justify-center rounded-full bg-white/5"
-              style={{ transform: `rotate(${rotation}deg)`, transition: phase === 'spinning' ? `transform ${spinDuration}ms cubic-bezier(0.22, 1, 0.36, 1)` : undefined }}
+              style={{
+                transform: `rotate(${rotation}deg)`,
+                transition:
+                  phase === 'spinning'
+                    ? `transform ${spinDuration}ms cubic-bezier(0.22, 1, 0.36, 1)`
+                    : undefined,
+              }}
             >
               <div className="absolute inset-0 grid grid-cols-2">
-                <div className="rounded-l-full bg-emerald-400/50 text-center text-lg font-semibold uppercase tracking-widest text-emerald-100">
+                <div className="relative rounded-l-full bg-emerald-400/50 text-center text-lg font-semibold uppercase tracking-widest text-emerald-100">
                   <span className="absolute inset-0 flex items-center justify-center rotate-[-90deg]">Truth</span>
                 </div>
-                <div className="rounded-r-full bg-rose-500/60 text-center text-lg font-semibold uppercase tracking-widest text-rose-100">
+                <div className="relative rounded-r-full bg-rose-500/60 text-center text-lg font-semibold uppercase tracking-widest text-rose-100">
                   <span className="absolute inset-0 flex items-center justify-center rotate-[-90deg]">Dare</span>
                 </div>
               </div>
@@ -210,7 +258,3 @@ export function TruthOrDareScreen() {
     </div>
   );
 }
-
-
-
-

@@ -1,8 +1,8 @@
-﻿export type GameMeta = {
+export type GameMeta = {
   slug: string;
   title: string;
   tagline: string;
-  status: 'available' | 'coming-soon';
+  status: "available" | "coming-soon";
   accent: string;
   heroImage?: string;
 };
@@ -14,6 +14,13 @@ export const games: GameMeta[] = [
     tagline: 'Spin the neon wheel and test your courage.',
     status: 'available',
     accent: '#22d3ee',
+  },
+  {
+    slug: 'trivia-night',
+    title: 'Trivia Night',
+    tagline: 'Pull live questions from Open Trivia DB.',
+    status: 'available',
+    accent: '#facc15',
   },
   {
     slug: 'drawing-telephone',

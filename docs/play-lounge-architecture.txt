@@ -31,10 +31,17 @@ Truth or Dare Module
   * After reveal, allow `Next Round` resets to `idle` selecting next player.
 - Visuals: radial gradient background, animated wheel (CSS transform), confetti optional (future).
 
+Trivia Night Module
+- Server route at `app/api/trivia/route.ts` proxies Open Trivia DB (`https://opentdb.com/api.php`) and decodes HTML entities with `he` before returning shuffled options.
+- Client screen (`components/games/trivia/trivia-screen.tsx`) supports session filters (amount, difficulty, type), reveal / award / next flow, and reuses the shared player roster for scoring.
+- Scoreboard highlights the active player (rotates with question index) and persists totals locally for the session.
+- Handles fetch failures with user-friendly errors; round completion summary prompts reloading a new deck.
+
 Extensibility
 - Games registry typed with shared interface so adding new games just requires metadata + route component.
 - Hook `usePartyPlayers` manages names and stores in localStorage.
 - Utility `pickRandom<T>(array, historySet?)` ensures recent prompts not repeated.
+- Trivia API endpoint accepts optional query params (`amount`, `difficulty`, `type`, `category`) so future UI controls can expand without backend changes.
 
 Roadmap After Truth or Dare
 - Add new games by creating `components/games/<new>` and hooking into `games.ts`.
@@ -44,6 +51,3 @@ Dev Notes
 - Provide scripts in package.json, ESLint + Tailwind config ready for `npm install`.
 - README to guide running `npm install` then `npm run dev`.
 - Keep assets ASCII-friendly; no external images initially.
-
-
-

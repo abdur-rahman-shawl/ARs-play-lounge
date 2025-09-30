@@ -3,15 +3,44 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { getGameBySlug } from "@/lib/games";
 import { TruthOrDareScreen } from "@/components/games/truth-or-dare/truth-or-dare-screen";
+import { TriviaScreen } from "@/components/games/trivia/trivia-screen";
 
-export default function GamePage({ params }: { params: { slug: string } }) {
+type GamePageProps = {
+  params: {
+    slug: string;
+  };
+};
+
+export default function GamePage({ params }: GamePageProps) {
   const game = getGameBySlug(params.slug);
 
   if (!game) {
     notFound();
   }
 
-  const isTruthOrDare = game.slug === "truth-or-dare";
+  const renderGame = () => {
+    switch (game.slug) {
+      case "truth-or-dare":
+        return (
+          <Suspense fallback={<p className="text-slate-300">Loading the wheel...</p>}>
+            <TruthOrDareScreen />
+          </Suspense>
+        );
+      case "trivia-night":
+        return (
+          <Suspense fallback={<p className="text-slate-300">Loading the question deck...</p>}>
+            <TriviaScreen />
+          </Suspense>
+        );
+      default:
+        return (
+          <section className="glass-panel p-10 text-slate-300">
+            <h2 className="mb-2 text-2xl font-semibold text-white">Coming soon</h2>
+            <p>We are crafting this experience. Head back to the lounge to pick another game.</p>
+          </section>
+        );
+    }
+  };
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-5xl flex-col gap-8 px-6 py-12 md:px-10 md:py-16">
@@ -33,16 +62,7 @@ export default function GamePage({ params }: { params: { slug: string } }) {
         <p className="text-sm text-slate-300 md:text-base">{game.tagline}</p>
       </header>
 
-      {isTruthOrDare ? (
-        <Suspense fallback={<p className="text-slate-300">Loading the wheel...</p>}>
-          <TruthOrDareScreen />
-        </Suspense>
-      ) : (
-        <section className="glass-panel p-10 text-slate-300">
-          <h2 className="mb-2 text-2xl font-semibold text-white">Coming soon</h2>
-          <p>We are crafting this experience. Head back to the lounge to pick another game.</p>
-        </section>
-      )}
+      {renderGame()}
     </main>
   );
 }

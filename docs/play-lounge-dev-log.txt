@@ -85,3 +85,4 @@ Dev Notes
 [2025-09-29 12:12] Repo docs -> Added project README and standardized .gitignore in play-lounge after git init.
 [2025-09-29 12:25] UI polish -> Marked wheel segments as relative containers so Truth/Dare labels no longer overlap.
 [2025-09-29 12:40] Bugfix -> Stabilized Truth or Dare spin cycle (timeout cleanup, functional rotation updates, history refs) and updated remove button icon.
+[2025-09-29 12:55] Trivia Night -> Added Open Trivia DB integration (server route, he decoding), new trivia screen with filters, scoreboard, and lounge navigation updates.

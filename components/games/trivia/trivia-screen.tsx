@@ -851,7 +851,7 @@ export function TriviaScreen() {
                       )}
                     >
                       <span className="flex items-center gap-2 font-semibold text-white">
-                        {isWinner && <span className="text-amber-200" aria-hidden="true">{"\u{1F3C6}"}</span>}
+                        {isWinner && <span className="text-amber-200" aria-hidden="true">{String.fromCodePoint(0x1f3c6)}</span>}
                         {player.name}
                       </span>
                       <span className="text-slate-200">
@@ -929,7 +929,7 @@ export function TriviaScreen() {
                   )}
                 >
                   <span className="flex items-center gap-2 font-medium">
-                    {isWinner && <span className="text-amber-200" aria-hidden="true">{"\u{1F3C6}"}</span>}
+                    {isWinner && <span className="text-amber-200" aria-hidden="true">{String.fromCodePoint(0x1f3c6)}</span>}
                     {player.name}
                   </span>
                   <span className="text-base font-semibold text-white">{playerScore}</span>

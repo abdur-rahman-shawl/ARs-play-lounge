@@ -92,3 +92,4 @@ Dev Notes
 [2025-09-29 13:55] UI polish -> Replaced dropdown popovers with modal option pickers per filter to avoid clipping and improve touch interactions.
 [2025-09-29 14:00] UI polish -> Added scrollable body to trivia option picker modals so large category lists stay usable.
 [2025-09-29 14:05] Trivia summary -> Added winners logic with confetti overlay, draw messaging, and highlighted leaderboards after each round.
+[2025-09-29 14:15] Home redesign -> Featured grid replaces carousel and added “Meet the Developer” card (Abdur Rahman, Bangalore) with playful bio.

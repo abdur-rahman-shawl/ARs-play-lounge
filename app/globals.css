@@ -31,3 +31,28 @@ body {
 ::-webkit-scrollbar-track {
   background: transparent;
 }
+.confetti-piece {
+  animation: confetti-fall 2.2s ease-in forwards;
+  opacity: 0.95;
+}
+
+.confetti-piece-0 { animation-duration: 2.2s; }
+.confetti-piece-1 { animation-duration: 1.8s; }
+.confetti-piece-2 { animation-duration: 2.5s; }
+.confetti-piece-3 { animation-duration: 2s; }
+.confetti-piece-4 { animation-duration: 2.3s; }
+.confetti-piece-5 { animation-duration: 1.7s; }
+
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(-120%) rotate(0deg);
+    opacity: 1;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(120vh) rotate(540deg);
+    opacity: 0;
+  }
+}

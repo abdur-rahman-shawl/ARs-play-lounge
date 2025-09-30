@@ -107,7 +107,7 @@ export function OptionPicker({
                 </button>
               </header>
 
-              <div className="flex flex-col gap-2">
+              <div className="flex max-h-80 flex-col gap-2 overflow-y-auto pr-1 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10">
                 {options.map((option) => {
                   const selectedOption = option.value === value;
                   return (
@@ -145,3 +145,4 @@ export function OptionPicker({
     </>
   );
 }
+

@@ -5,6 +5,7 @@ import clsx from "clsx";
 import { GlassCard } from "@/components/ui/glass-card";
 import { Button } from "@/components/ui/button";
 import { OptionPicker, OptionItem } from "@/components/ui/option-picker";
+import { ConfettiOverlay } from "@/components/ui/confetti-overlay";
 import { usePartyPlayers } from "@/hooks/usePartyPlayers";
 import type { PartyPlayer } from "@/hooks/usePartyPlayers";
 
@@ -462,6 +463,48 @@ export function TriviaScreen() {
     });
   }, [activePlayers, scores]);
 
+  const topScore = useMemo(() => {
+    if (!activePlayers.length) return 0;
+    return Math.max(...activePlayers.map((player) => scores[player.id] ?? 0));
+  }, [activePlayers, scores]);
+
+  const winnerIds = useMemo(() => {
+    if (!activePlayers.length) return new Set<string>();
+    return new Set(
+      activePlayers
+        .filter((player) => (scores[player.id] ?? 0) === topScore)
+        .map((player) => player.id),
+    );
+  }, [activePlayers, scores, topScore]);
+
+  const hasWinners = topScore > 0 && winnerIds.size > 0;
+  const isDraw = hasWinners && winnerIds.size > 1;
+
+  const winnerNames = useMemo(
+    () => activePlayers.filter((player) => winnerIds.has(player.id)).map((player) => player.name),
+    [activePlayers, winnerIds],
+  );
+
+  const celebrate = status === "summary" && hasWinners;
+
+  const summaryHeading = useMemo(() => {
+    if (!hasWinners) return "Round complete";
+    if (isDraw) return "It\'s a tie!";
+    return `${winnerNames[0]} takes the crown`;
+  }, [hasWinners, isDraw, winnerNames]);
+
+  const summarySubheading = useMemo(() => {
+    if (!hasWinners) {
+      return "Reload for another round or tweak the filters for a fresh challenge.";
+    }
+    if (isDraw) {
+      return `${winnerNames.join(" & ")} share top honors with ${topScore} point${topScore === 1 ? "" : "s"}.`;
+    }
+    return `${winnerNames[0]} finishes with ${topScore} point${topScore === 1 ? "" : "s"}.`;
+  }, [hasWinners, isDraw, topScore, winnerNames]);
+
+  const winnerIdSet = useMemo(() => new Set(Array.from(winnerIds)), [winnerIds]);
+
   return (
     <div className="flex flex-col gap-8">
       <GlassCard className="space-y-6 p-8">
@@ -676,7 +719,7 @@ export function TriviaScreen() {
               activePlayers.length === 0
             }
           >
-            {status === "loading" ? "Loading questions..." : "Start round"}
+            {activePlayers.length === 0 ? "Add players to begin" : status === "loading" ? "Loading questions..." : "Start round"}
           </Button>
           {status === "error" && (
             <Button
@@ -782,33 +825,33 @@ export function TriviaScreen() {
           )}
 
           {status === "summary" && (
-            <div className="flex flex-col gap-6">
-              <div>
-                <p className="text-xs uppercase tracking-[0.3em] text-slate-400">
-                  Great run
-                </p>
-                <h2 className="mt-2 text-3xl font-semibold text-white">
-                  Trivia round complete
-                </h2>
-                <p className="mt-1 text-sm text-slate-300">
-                  Reload to grab a new batch of questions or tweak the filters
-                  for a fresh challenge.
-                </p>
+            <div className="relative flex flex-col gap-6">
+              <ConfettiOverlay active={celebrate} />
+              <div className="relative space-y-2">
+                <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Great run</p>
+                <h2 className="mt-2 text-3xl font-semibold text-white">{summaryHeading}</h2>
+                <p className="text-sm text-slate-300">{summarySubheading}</p>
               </div>
 
-              <div className="flex flex-col gap-3 text-sm text-slate-200">
+              <div className="relative flex flex-col gap-3 text-sm text-slate-200">
                 {activePlayers.map((player) => {
                   const correct = scores[player.id] ?? 0;
                   const asked =
                     questionsByPlayer[player.id]?.length ??
                     activeQuestionsPerPlayer ??
                     0;
+                  const isWinner = winnerIdSet.has(player.id);
+
                   return (
                     <div
                       key={player.id}
-                      className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-4 py-3"
+                      className={clsx(
+                        "flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-4 py-3",
+                        isWinner && "border-amber-400 bg-amber-500/20 text-white shadow-glow",
+                      )}
                     >
-                      <span className="font-semibold text-white">
+                      <span className="flex items-center gap-2 font-semibold text-white">
+                        {isWinner && <span className="text-amber-200" aria-hidden="true">{"\u{1F3C6}"}</span>}
                         {player.name}
                       </span>
                       <span className="text-slate-200">
@@ -819,10 +862,8 @@ export function TriviaScreen() {
                 })}
               </div>
 
-              <div className="flex flex-wrap items-center gap-3">
-                <Button onClick={handleReplaySameSettings}>
-                  Play again (same settings)
-                </Button>
+              <div className="relative flex flex-wrap items-center gap-3">
+                <Button onClick={handleReplaySameSettings}>Play again (same settings)</Button>
                 <Button variant="ghost" onClick={handlePlayAgain}>
                   Adjust settings
                 </Button>
@@ -840,20 +881,18 @@ export function TriviaScreen() {
         <GlassCard className="flex flex-col gap-6 p-8">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs uppercase tracking-[0.3em] text-slate-400">
-                Scoreboard
-              </p>
+              <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Scoreboard</p>
               <h3 className="mt-1 text-xl font-semibold text-white">
                 {activePlayers.length
-                  ? "Track the crew"
+                  ? celebrate
+                    ? isDraw
+                      ? "Shared podium"
+                      : `${winnerNames[0]} leads`
+                    : "Track the crew"
                   : "Add players to keep score"}
               </h3>
             </div>
-            <Button
-              variant="ghost"
-              onClick={handleResetScores}
-              disabled={!activePlayers.length}
-            >
+            <Button variant="ghost" onClick={handleResetScores} disabled={!activePlayers.length}>
               Reset
             </Button>
           </div>
@@ -869,36 +908,38 @@ export function TriviaScreen() {
           <div className="flex flex-col gap-2">
             {activePlayers.length === 0 && (
               <p className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-300">
-                Use the roster tools above to add names. Scores persist across
-                games until you reset.
+                Use the roster tools above to add names. Scores persist across games until you reset.
               </p>
             )}
 
-            {sortedPlayers.map((player) => (
-              <div
-                key={player.id}
-                className={clsx(
-                  "flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-100",
-                  activePlayer &&
-                    activePlayer.id === player.id &&
-                    status === "active" &&
-                    "border-accent-neon bg-accent-neon/10 text-white",
-                  awardFlash &&
-                    activePlayer &&
-                    activePlayer.id === player.id &&
-                    hasAwarded &&
-                    "animate-pulse"
-                )}
-              >
-                <span className="font-medium">{player.name}</span>
-                <span className="text-base font-semibold text-white">
-                  {scores[player.id] ?? 0}
-                </span>
-              </div>
-            ))}
+            {sortedPlayers.map((player) => {
+              const playerScore = scores[player.id] ?? 0;
+              const isActivePlayer =
+                activePlayer && activePlayer.id === player.id && status === "active";
+              const isWinner = status === "summary" && winnerIdSet.has(player.id);
+
+              return (
+                <div
+                  key={player.id}
+                  className={clsx(
+                    "flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-100",
+                    isActivePlayer && "border-accent-neon bg-accent-neon/10 text-white",
+                    awardFlash && isActivePlayer && hasAwarded && "animate-pulse",
+                    isWinner && "border-amber-400 bg-amber-500/20 text-white shadow-glow",
+                  )}
+                >
+                  <span className="flex items-center gap-2 font-medium">
+                    {isWinner && <span className="text-amber-200" aria-hidden="true">{"\u{1F3C6}"}</span>}
+                    {player.name}
+                  </span>
+                  <span className="text-base font-semibold text-white">{playerScore}</span>
+                </div>
+              );
+            })}
           </div>
         </GlassCard>
       </div>
     </div>
   );
 }
+

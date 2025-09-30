@@ -1,4 +1,4 @@
-[2025-09-29 10:35] Project Kickoff
+﻿[2025-09-29 10:35] Project Kickoff
 Purpose: Build a single-device Next.js party hub inspired by PlayStation Home, delivering multiple couch-friendly games. First playable module: Truth or Dare with spinner and prompt management.
 Constraints: Runs on one PC offline; no multi-device sync yet. Target stack Next.js 14 App Router, Tailwind, TypeScript. Deployment not yet considered.
 Initial Brainstorming:
@@ -86,3 +86,7 @@ Dev Notes
 [2025-09-29 12:25] UI polish -> Marked wheel segments as relative containers so Truth/Dare labels no longer overlap.
 [2025-09-29 12:40] Bugfix -> Stabilized Truth or Dare spin cycle (timeout cleanup, functional rotation updates, history refs) and updated remove button icon.
 [2025-09-29 12:55] Trivia Night -> Added Open Trivia DB integration (server route, he decoding), new trivia screen with filters, scoreboard, and lounge navigation updates.
+[2025-09-29 13:20] Trivia Night upgrade -> Added per-player round robin (questions per player with 50-question cap), roster locking, category picker (Open Trivia DB), styled selects, summary replay flow, and refined scoreboard interactions.
+[2025-09-29 13:45] UI polish -> Replaced native selects with custom popover (fixed positioning) so trivia filters render above cards without clipping.
+
+[2025-09-29 13:55] UI polish -> Replaced dropdown popovers with modal option pickers per filter to avoid clipping and improve touch interactions.

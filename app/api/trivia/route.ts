@@ -17,7 +17,7 @@ type ApiResponse = {
 
 const OPENTDB_ENDPOINT = process.env.OPENTDB_BASE_URL ?? "https://opentdb.com/api.php";
 const DEFAULT_AMOUNT = 10;
-const MAX_AMOUNT = 20;
+const MAX_AMOUNT = 50;
 
 const clampAmount = (value: number) => {
   if (Number.isNaN(value) || value <= 0) return DEFAULT_AMOUNT;
@@ -54,13 +54,16 @@ export async function GET(request: NextRequest) {
   }
 
   if (category) {
-    apiUrl.searchParams.set("category", category);
+    const parsedCategory = Number(category);
+    if (!Number.isNaN(parsedCategory) && parsedCategory > 0) {
+      apiUrl.searchParams.set("category", String(parsedCategory));
+    }
   }
 
   try {
     const response = await fetch(apiUrl.toString(), {
       headers: {
-        "Accept": "application/json",
+        Accept: "application/json",
       },
       cache: "no-store",
     });

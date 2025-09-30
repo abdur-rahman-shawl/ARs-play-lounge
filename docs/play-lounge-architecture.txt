@@ -32,10 +32,12 @@ Truth or Dare Module
 - Visuals: radial gradient background, animated wheel (CSS transform), confetti optional (future).
 
 Trivia Night Module
-- Server route at `app/api/trivia/route.ts` proxies Open Trivia DB (`https://opentdb.com/api.php`) and decodes HTML entities with `he` before returning shuffled options.
-- Client screen (`components/games/trivia/trivia-screen.tsx`) supports session filters (amount, difficulty, type), reveal / award / next flow, and reuses the shared player roster for scoring.
-- Scoreboard highlights the active player (rotates with question index) and persists totals locally for the session.
-- Handles fetch failures with user-friendly errors; round completion summary prompts reloading a new deck.
+- Server route at `app/api/trivia/route.ts` proxies Open Trivia DB (`https://opentdb.com/api.php`), enforces the 50-question cap, and decodes HTML entities with `he` before returning shuffled options.
+- Category catalog route `app/api/trivia/categories/route.ts` hydrates the lobby dropdown while still allowing play when the request fails.
+- Client screen (`components/games/trivia/trivia-screen.tsx`) locks the roster once a round starts, supports filters (questions per player, difficulty, type, category), and assigns questions round-robin so every player gets an even stack.
+- Scoreboard highlights the active player, pulses on point awards, and offers quick reset/rematch controls.
+- Handles fetch failures with user-friendly errors and summarises each run with per-player accuracy plus replay/adjust options.
+
 
 Extensibility
 - Games registry typed with shared interface so adding new games just requires metadata + route component.

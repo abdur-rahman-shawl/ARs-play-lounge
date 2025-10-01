@@ -12,7 +12,7 @@ export default function HomePage() {
             href="/games/truth-or-dare"
             className="inline-flex items-center gap-2 rounded-2xl border border-accent-neon/60 bg-accent-neon/20 px-5 py-3 text-sm font-semibold text-white shadow-glow transition hover:bg-accent-neon/30"
           >
-            Launch Truth or Dare ->
+            Launch Truth or Dare -{'>'}
           </Link>
           <span className="text-xs uppercase tracking-[0.3em] text-slate-400">
             More games unlocking soon
@@ -71,7 +71,7 @@ export default function HomePage() {
               Fancy a feature idea or just want to swap story prompts? Drop a note and let&apos;s plan the next chaos module.
             </p>
             <a
-              href="mailto:hi@abdur.codes"
+              href="mailto:abdur.rahman.shawl@gmail.com"
               className="inline-flex items-center justify-center rounded-2xl border border-accent-neon/60 bg-accent-neon/10 px-4 py-2 text-sm font-semibold text-accent-neon transition hover:bg-accent-neon/20"
             >
               Ping Abdur
@@ -82,3 +82,6 @@ export default function HomePage() {
     </main>
   );
 }
+
+
+

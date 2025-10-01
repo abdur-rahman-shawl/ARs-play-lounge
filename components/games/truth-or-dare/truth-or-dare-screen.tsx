@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import clsx from 'clsx';
@@ -234,7 +234,7 @@ export function TruthOrDareScreen() {
               New {mode === 'truth' ? 'Truth' : 'Dare'}
             </Button>
             <Button onClick={nextPlayer} variant="ghost" disabled={!players.length}>
-              Next Player ->
+              Next Player -{'>'}
             </Button>
           </div>
 
